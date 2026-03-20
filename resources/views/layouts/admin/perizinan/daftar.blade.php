@@ -79,60 +79,6 @@
 
                 @endforelse
 
-                {{-- <!-- Row 1 -->
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 text-gray-700">
-                        12 Okt - 14 Okt 2023
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="bg-blue-100 text-blue-600 text-xs px-3 py-1 rounded-full">
-                            Cuti Tahunan
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="flex items-center gap-2 text-orange-500 font-medium">
-                            <i class="fa-solid fa-ellipsis"></i>
-                            Pending
-                        </span>
-                    </td>
-                </tr>
-
-                <!-- Row 2 -->
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 text-gray-700">
-                        05 Okt 2023
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="bg-orange-100 text-orange-500 text-xs px-3 py-1 rounded-full">
-                            Sakit
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="flex items-center gap-2 text-green-600 font-medium">
-                            <i class="fa-solid fa-circle-check"></i>
-                            Disetujui
-                        </span>
-                    </td>
-                </tr>
-
-                <!-- Row 3 -->
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 text-gray-700">
-                        20 Sep 2023
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="bg-blue-100 text-blue-600 text-xs px-3 py-1 rounded-full">
-                            Cuti Tahunan
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="flex items-center gap-2 text-red-500 font-medium">
-                            <i class="fa-solid fa-circle-xmark"></i>
-                            Ditolak
-                        </span>
-                    </td>
-                </tr> --}}
-
             </tbody>
 
         </table>

@@ -50,12 +50,6 @@
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
                     </div>
                 </form>
-                {{-- <div class="relative mt-1">
-                    <input type="text"
-                           placeholder="Masukkan kata kunci..."
-                           class="w-full border rounded-xl pl-10 pr-4 py-2 focus:ring focus:ring-blue-200">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
-                </div> --}}
             </div>
 
             <!-- Reset -->

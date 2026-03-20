@@ -63,7 +63,12 @@
 
             <form action="{{ route('karyawan.absenMasuk') }}" method="POST">
                 @csrf
-                <button class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-bllue-700 flex items-center gap-2">
+
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
+
+                <button type="submit"
+                    class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
                     <i class="fa-solid fa-right-to-bracket"></i>
                     Presensi Masuk
                 </button>
@@ -71,7 +76,12 @@
 
             <form action="{{ route('karyawan.absenPulang') }}" method="POST">
                 @csrf
-                <button class="border border-gray-300 px-6 py-3 rounded-xl hover:bg-gray-100 flex items-center gap-2">
+
+                <input type="hidden" name="latitude" id="latitude2">
+                <input type="hidden" name="longitude" id="longitude2">
+
+                <button type="submit"
+                    class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     Presensi Keluar
                 </button>
@@ -97,6 +107,13 @@
             document.getElementById('jam').innerText = jam;
             document.getElementById('tanggalHari').innerText = tanggal;
         }
+
+        navigator.geolocation.getCurrentPosition(function(position) {
+
+            document.getElementById('latitude').value = position.coords.latitude;
+            document.getElementById('longitude').value = position.coords.longitude;
+
+        });
 
         setInterval(updateJam, 1000);
         updateJam();

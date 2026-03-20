@@ -12,7 +12,7 @@ class PerizinanController extends Controller
 {
     public function daftarPerizinan()
     {
-        $perizinan = Perizinan::where('user_id', auth()->id())->orderBy('created_at', 'desc')->paginate(10);
+        $perizinan = Perizinan::with('verifikasi')->where('user_id', auth()->id())->orderBy('created_at', 'desc')->paginate(10);
 
         return view('layouts.karyawan.perizinan.daftar', compact('perizinan'));
     }
@@ -37,7 +37,7 @@ class PerizinanController extends Controller
 
         if ($validatedData['jenis_perizinan'] === 'Cuti' && auth()->user()->token_cuti <= 0) {
             return back()->withErrors([
-                'jenis_perizinan' => 'Anda tidak memiliki token cuti yang cukup.'
+                'jenis_perizinan' => 'Token cuti Anda sudah habis.'
             ]);
         }
 

@@ -123,6 +123,7 @@
                         <th class="px-6 py-4">Tanggal</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4">Disetujui Oleh</th>
+                        <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
                 </thead>
 
@@ -149,22 +150,41 @@
                     {{ \Carbon\Carbon::parse($pr->tanggal_mulai)->translatedFormat('d M Y') }}
                 </td>
 
-                <td class="px-6 py-4">
-                    @if ($pr->status === 'disetujui')
-                        <span class="flex items-center gap-2 text-green-600 font-medium">
-                            <i class="fa-solid fa-circle-check"></i>
-                            Disetujui
-                        </span>
-                    @else
-                        <span class="flex items-center gap-2 text-red-500 font-medium">
-                            <i class="fa-solid fa-circle-xmark"></i>
-                            Ditolak
-                        </span>
-                    @endif
+               <td class="px-6 py-4">
+
+                @if ($pr->verifikasi && $pr->verifikasi->status_admin == 'pending')
+
+                <span class="flex items-center gap-2 text-orange-500 font-medium">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    Menunggu Kepala Divisi
+                </span>
+
+                @elseif ($pr->verifikasi && $pr->verifikasi->status_admin == 'disetujui' && $pr->verifikasi->status_superadmin == 'pending')
+
+                <span class="flex items-center gap-2 text-yellow-500 font-medium">
+                    <i class="fa-solid fa-clock"></i>
+                    Menunggu HRD
+                </span>
+
+                @elseif ($pr->verifikasi && $pr->verifikasi->status_superadmin == 'disetujui')
+
+                <span class="flex items-center gap-2 text-green-600 font-medium">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Disetujui
+                </span>
+
+                @elseif ($pr->verifikasi && ($pr->verifikasi->status_admin == 'ditolak' || $pr->verifikasi->status_superadmin == 'ditolak'))
+
+                <span class="flex items-center gap-2 text-red-500 font-medium">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    Ditolak
+                </span>
+                @endif
+
                 </td>
 
                 <td class="px-6 py-4 text-gray-600">
-                    {{ $pr->approved_by ? $pr->approvedBy->nama_lengkap : '-' }}
+                     {{ $pr->verifikasi->admin->nama_lengkap ?? '-' }}
                 </td>
 
             </tr>

@@ -12,7 +12,7 @@ class PerizinanController extends Controller
 {
     public function daftarPerizinan()
     {
-        $perizinan = Perizinan::where('user_id', auth()->id())->orderBy('created_at', 'desc')->paginate(10);
+        $perizinan = Perizinan::with('verifikasi')->where('user_id', auth()->id())->orderBy('created_at', 'desc')->paginate(10);
         return view('layouts.admin.perizinan.daftar', compact('perizinan'));
     }
 

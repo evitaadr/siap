@@ -43,9 +43,20 @@
                             {{ \Carbon\Carbon::parse($item->jam_masuk)->format('H.i') }}
                         </td>
                         <td class="px-6 py-4">
-                            <span class="text-green-600 font-medium">
-                                Masuk
+                            @if ($item->status == 'hadir')
+                            <span class="flex items-center gap-2 text-green-600 font-medium">
+                                <i class="fa-solid fa-circle-check"></i>
+                                Tepat Waktu
                             </span>
+                            @else
+                            <span class="flex items-center gap-2 text-orange-500 font-medium">
+                                <i class="fa-solid fa-clock"></i>
+                                Terlambat
+                            </span>
+                            @endif
+                            {{-- <span class="text-green-600 font-medium">
+                                Masuk
+                            </span> --}}
                         </td>
                     </tr>
                     @endif

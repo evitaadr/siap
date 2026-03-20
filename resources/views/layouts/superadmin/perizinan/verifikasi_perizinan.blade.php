@@ -141,6 +141,7 @@
                         <th class="px-6 py-4">Tanggal</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4">Disetujui Oleh</th>
+                        <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
                 </thead>
 
@@ -168,18 +169,38 @@
                 </td>
 
                 <td class="px-6 py-4">
-                    @if ($pr->status == 'disetujui')
+
+                        @if ($pr->verifikasi && $pr->verifikasi->status_admin == 'pending')
+
+                        <span class="flex items-center gap-2 text-orange-500 font-medium">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                        Menunggu Kepala Divisi
+                        </span>
+
+                        @elseif ($pr->verifikasi && $pr->verifikasi->status_admin == 'disetujui' && $pr->verifikasi->status_superadmin == 'pending')
+
+                        <span class="flex items-center gap-2 text-yellow-500 font-medium">
+                        <i class="fa-solid fa-clock"></i>
+                        Menunggu HRD
+                        </span>
+
+                        @elseif ($pr->verifikasi && $pr->verifikasi->status_superadmin == 'disetujui')
+
                         <span class="flex items-center gap-2 text-green-600 font-medium">
-                            <i class="fa-solid fa-circle-check"></i>
-                            Disetujui
+                        <i class="fa-solid fa-circle-check"></i>
+                        Disetujui
                         </span>
-                    @else
+
+                        @elseif ($pr->verifikasi && ($pr->verifikasi->status_admin == 'ditolak' || $pr->verifikasi->status_superadmin == 'ditolak'))
+
                         <span class="flex items-center gap-2 text-red-500 font-medium">
-                            <i class="fa-solid fa-circle-xmark"></i>
-                            Ditolak
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        Ditolak
                         </span>
-                    @endif
-                </td>
+
+                        @endif
+
+                        </td>
 
                 <td class="px-6 py-4 text-gray-600">
                    {{ $pr->verifikasi->superadmin->nama_lengkap ?? '-' }}
@@ -316,21 +337,58 @@
                 <!-- Footer -->
                 @hasRole('superadmin')
                 <div class="flex justify-end items-center gap-4 px-6 py-4 border-t">
-                    <form action="{{ route('superadmin.updateVerifikasiPerizinan', $item->id) }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="status" value="ditolak">
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition">
-                            Tolak
-                        </button>
-                    </form>
+
+                    <!-- BUTTON TOLAK -->
+                    <button onclick="showRejectForm({{ $item->id }})"
+                        class="px-5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition">
+                        Tolak
+                    </button>
+
+                    <!-- BUTTON TERIMA -->
                     <form action="{{ route('superadmin.updateVerifikasiPerizinan', $item->id) }}" method="POST">
                         @csrf
                         <input type="hidden" name="status" value="disetujui">
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 text-whitehover:bg-blue-700 transition">
+                        <button type="submit"
+                            class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition">
                             Terima
                         </button>
                     </form>
+
                 </div>
+
+                <!-- FORM CATATAN PENOLAKAN -->
+                    <div id="reject-form-{{ $item->id }}" class="hidden px-6 pb-6">
+
+                        <form action="{{ route('superadmin.updateVerifikasiPerizinan', $item->id) }}" method="POST">
+                            @csrf
+
+                            <input type="hidden" name="status" value="ditolak">
+
+                            <label class="text-sm text-gray-500">Alasan Penolakan</label>
+
+                            <textarea name="catatan"
+                                required
+                                class="w-full border rounded-xl p-3 mt-2 focus:ring focus:ring-red-200"
+                                placeholder="Tulis alasan kenapa perizinan ini ditolak..."></textarea>
+
+                            <div class="flex justify-end mt-4 gap-3">
+
+                                <button type="button"
+                                    onclick="hideRejectForm({{ $item->id }})"
+                                    class="px-4 py-2 rounded-lg bg-gray-100">
+                                    Batal
+                                </button>
+
+                                <button type="submit"
+                                    class="px-5 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700">
+                                    Konfirmasi Tolak
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
                 @endhasRole
 
             </div>
@@ -377,6 +435,14 @@
 
         function closeModal(id) {
             document.getElementById('modal-' + id).classList.add('hidden');
+        }
+
+        function showRejectForm(id) {
+            document.getElementById('reject-form-' + id).classList.remove('hidden');
+        }
+
+        function hideRejectForm(id) {
+            document.getElementById('reject-form-' + id).classList.add('hidden');
         }
     </script>
     @endpush

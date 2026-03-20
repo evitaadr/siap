@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Perizinan;
 use App\Models\VerifikasiPerizinan;
 use RealRashid\SweetAlert\Facades\Alert;
+use Carbon\Carbon;
 
 class PerizinanController extends Controller
 {
@@ -42,9 +43,11 @@ class PerizinanController extends Controller
 
         // Cek apakah admin sudah memverifikasi
         if (!$verifikasi->admin_verified_at) {
-            Alert::warning('Peringatan', 'Admin belum memverifikasi perizinan ini.');
+            Alert::warning('Peringatan', 'Kepala divisi belum memverifikasi perizinan ini.');
             return redirect()->route('superadmin.verifikasi_perizinan');
         }
+
+        $perizinan = Perizinan::findOrFail($id);
 
         // Simpan verifikasi superadmin
         $verifikasi->status_superadmin = $request->status;
@@ -53,19 +56,30 @@ class PerizinanController extends Controller
         $verifikasi->superadmin_verified_at = now();
         $verifikasi->save();
 
-        // Update status di tabel perizinans
-        $perizinan = Perizinan::findOrFail($id);
-
-        if ($request->status == 'disetujui') {
+        if ($request->status == 'disetujui' && $perizinan->status != 'disetujui') {
             $perizinan->status = 'disetujui';
+            $perizinan->save();
+
+            // kurangi token cuti jika jenisnya CUTI
+        if ($perizinan->jenis_perizinan != 'Sakit') {
+
+            $user = User::find($perizinan->user_id);
+
+            $jumlahHari = \Carbon\Carbon::parse($perizinan->tanggal_mulai)
+                ->diffInDays(\Carbon\Carbon::parse($perizinan->tanggal_selesai)) + 1; // Tambahkan 1 untuk menghitung hari pertama
+
+            // dd('jumlahHari: '.$jumlahHari, 'user token cuti sebelum: '.$user->token_cuti);
+
+            // User::where('id', $perizinan->user_id)->decrement('token_cuti', $jumlahHari);
+            $user->decrement('token_cuti', $jumlahHari);
+            }
+
         } else {
             $perizinan->status = 'ditolak';
+            $perizinan->save();
         }
 
-        $perizinan->save();
-
         Alert::success('Sukses', 'Status perizinan berhasil diperbarui.');
-
         return redirect()->route('superadmin.verifikasi_perizinan');
     }
 
