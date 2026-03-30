@@ -17,10 +17,10 @@ class PerizinanController extends Controller
     // admin sudah verifikasi tapi superadmin belum
     $perizinanPending = Perizinan::with(['user','verifikasi'])
         ->whereHas('verifikasi', function ($p) {
-            $p->whereNotNull('admin_verified_at')
-              ->whereNull('superadmin_verified_at');
+            $p->whereNotNull('admin_verified_at') // Sudah diverifikasi admin
+              ->whereNull('superadmin_verified_at'); // Belum diverifikasi superadmin
         })
-        ->where('status', '!=', 'ditolak')
+        ->where('status', '!=', 'ditolak') // Hanya tampilkan yang tidak ditolak
         ->orderBy('created_at','desc')
         ->paginate(10);
 
@@ -61,17 +61,29 @@ class PerizinanController extends Controller
             $perizinan->save();
 
             // kurangi token cuti jika jenisnya CUTI
-        if ($perizinan->jenis_perizinan != 'Sakit') {
+        // if ($perizinan->jenis_perizinan != 'Sakit') {
+        if (strtolower(trim($perizinan->jenis_perizinan)) != 'sakit') {
 
-            $user = User::find($perizinan->user_id);
+            // $user = User::find($perizinan->user_id);
+            $user = \App\Models\User::find($perizinan->user_id);
 
-            $jumlahHari = \Carbon\Carbon::parse($perizinan->tanggal_mulai)
-                ->diffInDays(\Carbon\Carbon::parse($perizinan->tanggal_selesai)) + 1; // Tambahkan 1 untuk menghitung hari pertama
+            $jumlahHari = Carbon::parse($perizinan->tanggal_mulai)
+                ->diffInDays(Carbon::parse($perizinan->tanggal_selesai)) + 1; // Tambahkan 1 untuk menghitung hari pertama
+
+            if ($user->token_cuti >= $jumlahHari) {
+                $user->decrement('token_cuti', $jumlahHari);
+            } else {
+                Alert::warning('Peringatan', 'Token cuti tidak mencukupi untuk perizinan ini.');
+                return redirect()->back();
+            }
+
+            // $jumlahHari = \Carbon\Carbon::parse($perizinan->tanggal_mulai)
+            //     ->diffInDays(\Carbon\Carbon::parse($perizinan->tanggal_selesai)) + 1; // Tambahkan 1 untuk menghitung hari pertama
 
             // dd('jumlahHari: '.$jumlahHari, 'user token cuti sebelum: '.$user->token_cuti);
 
             // User::where('id', $perizinan->user_id)->decrement('token_cuti', $jumlahHari);
-            $user->decrement('token_cuti', $jumlahHari);
+            // $user->decrement('token_cuti', $jumlahHari);
             }
 
         } else {

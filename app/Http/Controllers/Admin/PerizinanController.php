@@ -63,7 +63,13 @@ class PerizinanController extends Controller
 
     public function daftarVerifikasiPerizinan()
     {
-        $perizinanPending = Perizinan::where('status', 'pending')->orderBy('created_at', 'desc')->paginate(10);
+        // $perizinanPending = Perizinan::where('status', 'pending')->orderBy('created_at', 'desc')->paginate(10);
+        $perizinanPending = Perizinan::whereHas('verifikasi', function ($q) {
+            $q->whereNull('admin_verified_at');
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+
         $perizinanRiwayat = Perizinan::whereIn('status', ['disetujui', 'ditolak'])->orderBy('created_at', 'desc')->paginate(10);
 
         return view('layouts.admin.perizinan.verifikasi_perizinan', compact('perizinanPending', 'perizinanRiwayat'));
@@ -83,10 +89,17 @@ class PerizinanController extends Controller
           // Update status di tabel perizinans
         $perizinan = Perizinan::findOrFail($id);
 
-        if ($request->status == 'disetujui') {
-            $perizinan->status = 'disetujui';
+        // if ($request->status == 'disetujui') {
+        //     $perizinan->status = 'disetujui';
+        // } else {
+        //     $perizinan->status = 'ditolak';
+        // }
+
+        if ($request->status == 'ditolak') {
+            $perizinan->status == 'ditolak';
         } else {
-            $perizinan->status = 'ditolak';
+            // tetap pending jika disetujui oleh admin, karena masih menunggu verifikasi superadmin
+            $perizinan->status = 'pending';
         }
 
         $perizinan->save();
