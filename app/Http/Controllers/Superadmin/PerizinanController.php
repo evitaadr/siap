@@ -17,7 +17,7 @@ class PerizinanController extends Controller
     // admin sudah verifikasi tapi superadmin belum
     $perizinanPending = Perizinan::with(['user','verifikasi'])
         ->whereHas('verifikasi', function ($p) {
-            $p->whereNotNull('admin_verified_at') // Sudah diverifikasi admin
+            $p->where('status_admin', 'disetujui') // Sudah diverifikasi admin
               ->whereNull('superadmin_verified_at'); // Belum diverifikasi superadmin
         })
         ->where('status', '!=', 'ditolak') // Hanya tampilkan yang tidak ditolak
@@ -76,15 +76,7 @@ class PerizinanController extends Controller
                 Alert::warning('Peringatan', 'Token cuti tidak mencukupi untuk perizinan ini.');
                 return redirect()->back();
             }
-
-            // $jumlahHari = \Carbon\Carbon::parse($perizinan->tanggal_mulai)
-            //     ->diffInDays(\Carbon\Carbon::parse($perizinan->tanggal_selesai)) + 1; // Tambahkan 1 untuk menghitung hari pertama
-
-            // dd('jumlahHari: '.$jumlahHari, 'user token cuti sebelum: '.$user->token_cuti);
-
-            // User::where('id', $perizinan->user_id)->decrement('token_cuti', $jumlahHari);
-            // $user->decrement('token_cuti', $jumlahHari);
-            }
+        }
 
         } else {
             $perizinan->status = 'ditolak';

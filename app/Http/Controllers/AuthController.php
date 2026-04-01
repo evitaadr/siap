@@ -15,14 +15,15 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credetials = $request->validate([
+        $credentials = $request->validate([
             'username' => 'required|string',
             'password' => 'required',
         ]);
 
-        $credetials["status"] = 'aktif';
+        // Tambahkan kondisi untuk memeriksa status aktif pada proses autentikasi
+        $credentials["status"] = 'aktif';
 
-        if (!Auth::attempt($credetials)) {
+        if (!Auth::attempt($credentials)) {
             return back()->withErrors([
                 'username' => 'Username atau password salah.',
             ])->onlyInput('username');

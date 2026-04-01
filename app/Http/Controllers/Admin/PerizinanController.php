@@ -78,6 +78,7 @@ class PerizinanController extends Controller
 
     public function updateVerifikasiPerizinan(Request $request, $id)
     {
+        // dd($request->all(), $id);
         $verifikasi = VerifikasiPerizinan::where('perizinan_id', $id)->firstOrFail();
 
         $verifikasi->status_admin = $request->status;
@@ -89,17 +90,10 @@ class PerizinanController extends Controller
           // Update status di tabel perizinans
         $perizinan = Perizinan::findOrFail($id);
 
-        // if ($request->status == 'disetujui') {
-        //     $perizinan->status = 'disetujui';
-        // } else {
-        //     $perizinan->status = 'ditolak';
-        // }
-
         if ($request->status == 'ditolak') {
-            $perizinan->status == 'ditolak';
-        } else {
-            // tetap pending jika disetujui oleh admin, karena masih menunggu verifikasi superadmin
-            $perizinan->status = 'pending';
+            $perizinan->status = 'ditolak';
+        } else if ($request->status == 'disetujui') {
+            $perizinan->status = 'disetujui';
         }
 
         $perizinan->save();
