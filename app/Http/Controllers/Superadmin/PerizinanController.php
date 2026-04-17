@@ -8,6 +8,7 @@ use App\Models\Perizinan;
 use App\Models\VerifikasiPerizinan;
 use RealRashid\SweetAlert\Facades\Alert;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PerizinanController extends Controller
 {
@@ -56,29 +57,34 @@ class PerizinanController extends Controller
         $verifikasi->superadmin_verified_at = now();
         $verifikasi->save();
 
-        if ($request->status == 'disetujui' && $perizinan->status != 'disetujui') {
+        if ($request->status == 'disetujui') {
+
             $perizinan->status = 'disetujui';
             $perizinan->save();
 
-            // kurangi token cuti jika jenisnya CUTI
-        // if ($perizinan->jenis_perizinan != 'Sakit') {
-        if (strtolower(trim($perizinan->jenis_perizinan)) != 'sakit') {
+            // cek jenis perizinan, jika bukan sakit maka kurangi token cuti
+            if (strtolower(trim($perizinan->jenis_perizinan)) != 'sakit') {
 
-            // $user = User::find($perizinan->user_id);
-            $user = \App\Models\User::find($perizinan->user_id);
+                $user = \App\Models\User::find($perizinan->user_id);
 
-            $jumlahHari = Carbon::parse($perizinan->tanggal_mulai)
-                ->diffInDays(Carbon::parse($perizinan->tanggal_selesai)) + 1; // Tambahkan 1 untuk menghitung hari pertama
+                if (!$user) {
+                    return;
+                }
 
-            if ($user->token_cuti >= $jumlahHari) {
-                $user->decrement('token_cuti', $jumlahHari);
-            } else {
-                Alert::warning('Peringatan', 'Token cuti tidak mencukupi untuk perizinan ini.');
-                return redirect()->back();
+                $jumlahHari = Carbon::parse($perizinan->tanggal_mulai)
+                    ->diffInDays(Carbon::parse($perizinan->tanggal_selesai)) + 1;
+
+                if ($user->token_cuti >= $jumlahHari) {
+                    $user->decrement('token_cuti', $jumlahHari);
+                } else {
+                    Alert::warning('Peringatan', 'Token cuti tidak mencukupi untuk perizinan ini.');
+                    return redirect()->back();
+                }
+
             }
-        }
 
         } else {
+
             $perizinan->status = 'ditolak';
             $perizinan->save();
         }

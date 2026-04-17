@@ -62,8 +62,7 @@ class PerizinanController extends Controller
 
 
     public function daftarVerifikasiPerizinan()
-    {
-        // $perizinanPending = Perizinan::where('status', 'pending')->orderBy('created_at', 'desc')->paginate(10);
+    {;
         $perizinanPending = Perizinan::whereHas('verifikasi', function ($q) {
             $q->whereNull('admin_verified_at');
         })
@@ -78,7 +77,6 @@ class PerizinanController extends Controller
 
     public function updateVerifikasiPerizinan(Request $request, $id)
     {
-        // dd($request->all(), $id);
         $verifikasi = VerifikasiPerizinan::where('perizinan_id', $id)->firstOrFail();
 
         $verifikasi->status_admin = $request->status;

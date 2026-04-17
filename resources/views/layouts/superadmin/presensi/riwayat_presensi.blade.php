@@ -75,77 +75,31 @@
             </thead>
 
             <tbody class="divide-y divide-gray-100/70">
-
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">1</td>
-                    <td class="px-6 py-4 font-medium text-gray-800">Budi Santoso</td>
-                    <td class="px-6 py-4">Teknisi</td>
-                    <td class="px-6 py-4">12 Oct 2025</td>
-                    <td class="px-6 py-4 font-semibold">08:00</td>
-                    <td class="px-6 py-4">17:00</td>
-                    <td class="px-6 py-4">
+            @foreach ($data as $index => $item)
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4">{{ $index + 1 }}</td>
+                <td class="px-6 py-4 font-medium text-gray-800">{{ $item->user->nama_lengkap }}</td>
+                <td class="px-6 py-4">{{ $item->user->divisi }}</td>
+                <td class="px-6 py-4">{{ $item->tanggal }}</td>
+                <td class="px-6 py-4">{{ $item->jam_masuk ?? '--:--' }}</td>
+                <td class="px-6 py-4">{{ $item->jam_pulang ?? '--:--' }}</td>
+                <td class="px-6 py-4">
+                    @if($item->status_label == 'Terlambat')
+                        <span class="bg-red-100 text-red-500 text-xs px-3 py-1 rounded-full">
+                            Terlambat {{ $item->terlambat_menit }} Menit
+                        </span>
+                    @elseif($item->status_label == 'Hadir')
                         <span class="bg-green-100 text-green-600 text-xs px-3 py-1 rounded-full">
                             Hadir
                         </span>
-                    </td>
-                </tr>
-
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">2</td>
-                    <td class="px-6 py-4 font-medium text-gray-800">Siti Aminah</td>
-                    <td class="px-6 py-4">Marketing</td>
-                    <td class="px-6 py-4">12 Oct 2025</td>
-                    <td class="px-6 py-4 text-red-500 font-semibold">08:15</td>
-                    <td class="px-6 py-4">17:05</td>
-                    <td class="px-6 py-4">
-                        <span class="bg-red-100 text-red-500 text-xs px-3 py-1 rounded-full">
-                            Terlambat - 15 Menit
-                        </span>
-                    </td>
-                </tr>
-
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">3</td>
-                    <td class="px-6 py-4 font-medium text-gray-800">Andi Wijaya</td>
-                    <td class="px-6 py-4">Finance</td>
-                    <td class="px-6 py-4">12 Oct 2025</td>
-                    <td class="px-6 py-4 text-gray-400">--:--</td>
-                    <td class="px-6 py-4 text-gray-400">--:--</td>
-                    <td class="px-6 py-4">
+                    @else
                         <span class="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
                             Tidak Hadir
                         </span>
-                    </td>
-                </tr>
-
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">4</td>
-                    <td class="px-6 py-4 font-medium text-gray-800">Dewi Lestari</td>
-                    <td class="px-6 py-4">CRO & Legal</td>
-                    <td class="px-6 py-4">12 Oct 2025</td>
-                    <td class="px-6 py-4 font-semibold">07:55</td>
-                    <td class="px-6 py-4">17:10</td>
-                    <td class="px-6 py-4">
-                        <span class="bg-green-100 text-green-600 text-xs px-3 py-1 rounded-full">
-                            Hadir
-                        </span>
-                    </td>
-                </tr>
-
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">5</td>
-                    <td class="px-6 py-4 font-medium text-gray-800">Eko Prasetyo</td>
-                    <td class="px-6 py-4">NOC</td>
-                    <td class="px-6 py-4">12 Oct 2025</td>
-                    <td class="px-6 py-4 text-red-500 font-semibold">08:05</td>
-                    <td class="px-6 py-4">17:00</td>
-                    <td class="px-6 py-4">
-                        <span class="bg-red-100 text-red-500 text-xs px-3 py-1 rounded-full">
-                            Terlambat - 5 Menit
-                        </span>
-                    </td>
-                </tr>
-
+                    @endif
+                </td>
+            </tr>
+            @endforeach
             </tbody>
         </table>
 

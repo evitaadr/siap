@@ -54,9 +54,6 @@
                                 Terlambat
                             </span>
                             @endif
-                            {{-- <span class="text-green-600 font-medium">
-                                Masuk
-                            </span> --}}
                         </td>
                     </tr>
                     @endif

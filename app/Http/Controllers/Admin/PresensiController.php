@@ -43,9 +43,10 @@ class PresensiController extends Controller
 
     public function riwayatPresensi()
     {
-        $presensi = \App\Models\Presensi::where('user_id', auth()->id())
+        $presensi = Presensi::with('user')
             ->orderBy('tanggal', 'desc')
-            ->get();
+            ->orderBy('jam_masuk', 'desc')
+            ->paginate(10);
 
         return view('layouts.admin.presensi.presensi', compact('presensi'));
     }

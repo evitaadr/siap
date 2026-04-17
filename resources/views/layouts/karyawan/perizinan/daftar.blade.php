@@ -61,8 +61,9 @@
                         @if ($p->verifikasi && $p->verifikasi->status_admin == 'pending')
 
                         <span class="flex items-center gap-2 text-orange-500 font-medium">
-                        <i class="fa-solid fa-hourglass-half"></i>
-                        Menunggu Kepala Divisi
+                        {{-- <i class="fa-solid fa-hourglass-half"></i> --}}
+                        <i class="fa-solid fa-ellipsis"></i>
+                        Pending
                         </span>
 
                         @elseif ($p->verifikasi && $p->verifikasi->status_admin == 'disetujui' && $p->verifikasi->status_superadmin == 'pending')

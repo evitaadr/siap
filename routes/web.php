@@ -29,9 +29,7 @@ Route::middleware(['auth', 'role:superadmin'])
         Route::put('/update-pengguna/{id}', [SuperadminUserController::class, 'updatePengguna'])->name('updatePengguna');
         Route::get('/lihat-pengguna/{id}', [SuperadminUserController::class, 'lihatPengguna'])->name('lihatPengguna');
 
-        Route::get('/riwayat_presensi', function () {
-            return view('layouts.superadmin.presensi.riwayat_presensi');
-        })->name('riwayat_presensi');
+        Route::get('/riwayat_presensi', [App\Http\Controllers\Superadmin\PresensiController::class, 'riwayatPresensi'])->name('riwayat_presensi');
 
         Route::post('/absen-masuk', [App\Http\Controllers\Superadmin\PresensiController::class, 'absenMasuk'])->name('absenMasuk');
         Route::post('/absen-pulang', [App\Http\Controllers\Superadmin\PresensiController::class, 'absenPulang'])->name('absenPulang');
@@ -39,7 +37,6 @@ Route::middleware(['auth', 'role:superadmin'])
         Route::get('/verifikasi_perizinan', [App\Http\Controllers\Superadmin\PerizinanController::class, 'verifikasiPerizinan'])->name('verifikasi_perizinan');
         Route::get('/get-verifikasi-by-id/{id}', [App\Http\Controllers\Superadmin\PerizinanController::class, 'getVerifikasiById'])->name('getVerifikasiById');
         Route::post('/verifikasi-perizinan/{id}', [App\Http\Controllers\Superadmin\PerizinanController::class, 'updateVerifikasiPerizinan'])->name('updateVerifikasiPerizinan');
-
 
     });
 
