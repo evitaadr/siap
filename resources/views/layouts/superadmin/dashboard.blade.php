@@ -93,7 +93,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <p>24 Okt – 26 Okt</p>
-                            <p class="text-xs text-gray-400">Cuti Tahunan</p>
+                            <p class="text-xs text-gray-400">Cuti</p>
                         </td>
                     </tr>
 
@@ -171,7 +171,7 @@
                 </button>
             </form>
 
-            <!-- 🔥 STATUS MASUK -->
+            <!--  STATUS MASUK -->
             <p id="statusMasuk" class="text-sm text-gray-500 mt-2"></p>
         </div>
 
@@ -187,11 +187,11 @@
                 <button type="submit" id="btnKeluar"
                     class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
                     <i class="fa-solid fa-right-from-bracket"></i>
-                    Presensi Keluar
+                    Presensi Pulang
                 </button>
             </form>
 
-            <!-- 🔥 STATUS KELUAR -->
+            <!--  STATUS KELUAR -->
             <p id="statusKeluar" class="text-sm text-gray-500 mt-2"></p>
         </div>
 
@@ -238,7 +238,7 @@ function ambilLokasi(latId, lngId) {
         });
 
         navigator.geolocation.getCurrentPosition(
-            // ✅ SUKSES
+            //  SUKSES
             function(position) {
                 document.getElementById(latId).value = position.coords.latitude;
                 document.getElementById(lngId).value  = position.coords.longitude;

@@ -91,7 +91,7 @@
                 <button type="submit" id="btnKeluar"
                     class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
                     <i class="fa-solid fa-right-from-bracket"></i>
-                    Presensi Keluar
+                    Presensi Pulang
                 </button>
             </form>
 

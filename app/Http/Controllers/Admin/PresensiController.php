@@ -16,22 +16,22 @@ class PresensiController extends Controller
         $today = Carbon::today();
         $now = Carbon::now();
 
-        $startAbsen = Carbon::createFromTime(18,30,0); // Jam masuk kantor
-        $endAbsen = Carbon::createFromTime(19,00,0); // Batas akhir absen masuk
+        $startAbsen = Carbon::createFromTime(7,0,0); // Jam masuk kantor
+        $endAbsen = Carbon::createFromTime(8,0,0); // Batas akhir absen masuk
 
         // kampus
         // $officeLat = -7.6476731;
         // $officeLng = 111.5265424;
         // $radius = 200;
 
-        $officeLat = -7.6472437;
-        $officeLng = 111.5260803;
-        $radius = 200;
+        // $officeLat = -7.6472437;
+        // $officeLng = 111.5260803;
+        // $radius = 200;
 
         // kantor
-        // $officeLat = -7.6622185;
-        // $officeLng = 111.4870806;
-        // $radius = 200;
+        $officeLat = -7.6622185;
+        $officeLng = 111.4870806;
+        $radius = 200;
 
         // rumah
         // $officeLat = -7.6833838;
@@ -52,7 +52,7 @@ class PresensiController extends Controller
         }
 
         if ($now->lt($startAbsen)) {
-            Alert::error('Error', 'Absen dimulai pukul 09:00');
+            Alert::error('Error', 'Absen dimulai pukul 07:00');
             return back();
         }
         // Cek apakah sudah ada presensi masuk untuk hari ini
@@ -83,8 +83,8 @@ class PresensiController extends Controller
         $today = Carbon::today();
         $now = Carbon::now();
 
-        $jamPulang = Carbon::createFromTime(19,30,0); // Jam pulang kantor
-        $batasPulang = Carbon::createFromTime(19,00,0); // Batas akhir absen pulang
+        $jamPulang = Carbon::createFromTime(17,0,0); // Jam pulang kantor
+        $batasPulang = Carbon::createFromTime(18,0,0); // Batas akhir absen pulang
 
         $presensi = Presensi::where('user_id', $user->id)->where('tanggal', $today)->first();
 

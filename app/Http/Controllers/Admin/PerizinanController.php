@@ -59,8 +59,6 @@ class PerizinanController extends Controller
 
         $user = auth()->user();
 
-        // dd($user->hasRole('admin'));
-
         // Kepala divisi langsung ke HRD
         VerifikasiPerizinan::create([
             'perizinan_id' => $perizinan->id,
@@ -70,27 +68,26 @@ class PerizinanController extends Controller
             'status_superadmin' => 'pending',
         ]);
 
-        // dd(VerifikasiPerizinan::where('perizinan_id', $perizinan->id)->first());
-
         Alert::success('Sukses', 'Data perizinan berhasil diajukan.');
         return redirect()->route('admin.daftarPerizinan');
     }
 
 
+    // menerima data perizinan yang belum diverifikasi admin
     public function daftarVerifikasiPerizinan()
     {
         $perizinanPending = Perizinan::whereHas('verifikasi', function ($q) {
             $q->whereNull('admin_verified_at');
         })
         ->whereHas('user.roles', function ($q) {
-            $q->where('nama', 'karyawan'); // ⬅️ ini kuncinya
+            $q->where('nama', 'karyawan');
         })
         ->orderBy('created_at', 'desc')
         ->paginate(10);
 
         $perizinanRiwayat = Perizinan::whereIn('status', ['disetujui', 'ditolak'])
         ->whereHas('user.roles', function ($q) {
-            $q->where('nama', 'karyawan'); // ⬅️ konsisten
+            $q->where('nama', 'karyawan');
         })
         ->orderBy('created_at', 'desc')
         ->paginate(10);
