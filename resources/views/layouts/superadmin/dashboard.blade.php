@@ -154,50 +154,194 @@
             Kantor Pusat PT Sarana Media Cemerlang
         </p>
 
-        <!-- Tombol -->
         <div class="flex justify-center gap-6">
 
-            <form action="{{ route('superadmin.absenMasuk') }}" method="POST">
+        <!-- PRESENSI MASUK -->
+        <div class="flex flex-col items-center">
+            <form id="formMasuk" action="{{ route('superadmin.absenMasuk') }}" method="POST">
                 @csrf
-                <button type="submit"
+
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
+
+                <button type="submit" id="btnMasuk"
                     class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
                     <i class="fa-solid fa-right-to-bracket"></i>
                     Presensi Masuk
                 </button>
             </form>
 
-            <form action="{{ route('superadmin.absenPulang') }}" method="POST">
+            <!-- 🔥 STATUS MASUK -->
+            <p id="statusMasuk" class="text-sm text-gray-500 mt-2"></p>
+        </div>
+
+
+        <!-- PRESENSI KELUAR -->
+        <div class="flex flex-col items-center">
+            <form id="formKeluar" action="{{ route('superadmin.absenPulang') }}" method="POST">
                 @csrf
-                <button type="submit"
-                    class="border border-gray-300 px-6 py-3 rounded-xl hover:bg-gray-100 flex items-center gap-2">
+
+                <input type="hidden" name="latitude" id="latitude2">
+                <input type="hidden" name="longitude" id="longitude2">
+
+                <button type="submit" id="btnKeluar"
+                    class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
                     <i class="fa-solid fa-right-from-bracket"></i>
-                    Presensi Pulang
+                    Presensi Keluar
                 </button>
             </form>
+
+            <!-- 🔥 STATUS KELUAR -->
+            <p id="statusKeluar" class="text-sm text-gray-500 mt-2"></p>
         </div>
 
     </div>
+    </div>
 
     @push('js')
-    <script>
-        function updateJam() {
-            const now = new Date();
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-            const jam = now.toLocaleTimeString('id-ID');
-            const tanggal = now.toLocaleDateString('id-ID', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
+<script>
+// ===== UPDATE JAM =====
+function updateJam() {
+    const now = new Date();
+    document.getElementById('jam').innerText = now.toLocaleTimeString('id-ID');
+    document.getElementById('tanggalHari').innerText = now.toLocaleDateString('id-ID', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+}
+setInterval(updateJam, 1000);
+updateJam();
+
+
+// ===== CEK & MINTA LOKASI =====
+function ambilLokasi(latId, lngId) {
+    return new Promise((resolve, reject) => {
+
+        // Cek apakah browser support geolocation
+        if (!navigator.geolocation) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Browser Tidak Support',
+                text: 'Browser kamu tidak mendukung fitur lokasi (GPS).',
             });
-
-            document.getElementById('jam').innerText = jam;
-            document.getElementById('tanggalHari').innerText = tanggal;
+            return reject('unsupported');
         }
 
-        setInterval(updateJam, 1000);
-        updateJam();
-    </script>
-    @endpush
+        // Tampilkan loading saat mengambil lokasi
+        Swal.fire({
+            title: 'Mengambil Lokasi...',
+            text: 'Mohon tunggu sebentar',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        navigator.geolocation.getCurrentPosition(
+            // ✅ SUKSES
+            function(position) {
+                document.getElementById(latId).value = position.coords.latitude;
+                document.getElementById(lngId).value  = position.coords.longitude;
+                Swal.close();
+                resolve(position);
+            },
+
+            // ❌ GAGAL / DITOLAK
+            function(error) {
+                let title   = 'Gagal Mendapatkan Lokasi';
+                let text    = '';
+                let footer  = '';
+
+                if (error.code === error.PERMISSION_DENIED) {
+                    title  = 'Izin Lokasi Ditolak ❌';
+                    text   = 'Kamu harus mengizinkan akses lokasi agar bisa melakukan presensi.';
+                    footer = `<b>Cara aktifkan:</b><br>
+                              🔒 Klik ikon gembok/info di address bar browser<br>
+                              → Pilih <b>Izinkan Lokasi</b> → Refresh halaman`;
+                } else if (error.code === error.POSITION_UNAVAILABLE) {
+                    text = 'Lokasi tidak tersedia. Pastikan GPS perangkat kamu aktif.';
+                } else if (error.code === error.TIMEOUT) {
+                    text = 'Waktu habis saat mengambil lokasi. Coba lagi.';
+                }
+
+                Swal.fire({
+                    icon: 'warning',
+                    title,
+                    text,
+                    footer,
+                    confirmButtonText: 'Coba Lagi',
+                    showCancelButton: true,
+                    cancelButtonText: 'Batal',
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        // Jika user klik "Coba Lagi", panggil ulang
+                        ambilLokasi(latId, lngId).then(() => {
+                            document.getElementById(latId).closest('form').submit();
+                        }).catch(() => {});
+                    }
+                });
+
+                reject(error);
+            },
+
+            // OPTIONS
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    });
+}
+
+
+// ===== HANDLE SUBMIT MASUK =====
+document.getElementById('formMasuk').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+
+    ambilLokasi('latitude', 'longitude')
+        .then(() => {
+            // Validasi ganda: pastikan value tidak kosong
+            const lat = document.getElementById('latitude').value;
+            const lng = document.getElementById('longitude').value;
+
+            if (!lat || !lng) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lokasi Belum Didapat',
+                    text: 'Data koordinat masih kosong. Silakan coba lagi.',
+                });
+                return;
+            }
+
+            form.submit();
+        })
+        .catch(() => {
+            // Error sudah di-handle di dalam ambilLokasi()
+        });
+});
+
+// ===== HANDLE SUBMIT KELUAR =====
+document.getElementById('formKeluar').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+
+    ambilLokasi('latitude2', 'longitude2')
+        .then(() => {
+            const lat = document.getElementById('latitude2').value;
+            const lng = document.getElementById('longitude2').value;
+
+            if (!lat || !lng) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lokasi Belum Didapat',
+                    text: 'Data koordinat masih kosong. Silakan coba lagi.',
+                });
+                return;
+            }
+
+            form.submit();
+        })
+        .catch(() => {});
+});
+</script>
+@endpush
 
 </x-main>

@@ -13,30 +13,30 @@ use Illuminate\Support\Facades\Log;
 class PerizinanController extends Controller
 {
     public function verifikasiPerizinan()
-{
-    // Pending untuk superadmin
-    // admin sudah verifikasi tapi superadmin belum
-    $perizinanPending = Perizinan::with(['user','verifikasi'])
-        ->whereHas('verifikasi', function ($p) {
-            $p->where('status_admin', 'disetujui') // Sudah diverifikasi admin
-              ->whereNull('superadmin_verified_at'); // Belum diverifikasi superadmin
-        })
-        ->where('status', '!=', 'ditolak') // Hanya tampilkan yang tidak ditolak
-        ->orderBy('created_at','desc')
-        ->paginate(10);
+    {
+        // Pending untuk superadmin
+        // admin sudah verifikasi tapi superadmin belum
+        $perizinanPending = Perizinan::with(['user','verifikasi'])
+            ->whereHas('verifikasi', function ($p) {
+                $p->where('status_admin', 'disetujui') // Sudah diverifikasi admin
+                ->whereNull('superadmin_verified_at'); // Belum diverifikasi superadmin
+            })
+            ->where('status', '!=', 'ditolak') // Hanya tampilkan yang tidak ditolak
+            ->orderBy('created_at','desc')
+            ->paginate(10);
 
 
-    // Riwayat verifikasi superadmin
-    $perizinanRiwayat = Perizinan::with(['user','verifikasi'])
-        ->whereHas('verifikasi', function ($q) {
-            $q->whereNotNull('superadmin_verified_at');
-        })
-        ->orderBy('created_at','desc')
-        ->paginate(10);
+        // Riwayat verifikasi superadmin
+        $perizinanRiwayat = Perizinan::with(['user','verifikasi'])
+            ->whereHas('verifikasi', function ($q) {
+                $q->whereNotNull('superadmin_verified_at');
+            })
+            ->orderBy('created_at','desc')
+            ->paginate(10);
 
-    return view('layouts.superadmin.perizinan.verifikasi_perizinan',
-        compact('perizinanPending','perizinanRiwayat'));
-}
+        return view('layouts.superadmin.perizinan.verifikasi_perizinan',
+            compact('perizinanPending','perizinanRiwayat'));
+    }
 
     public function updateVerifikasiPerizinan(Request $request, $id)
     {

@@ -56,7 +56,7 @@
                 Semua Rekaman
             </span>
             <span class="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded-full">
-                5
+                {{ $data->count() }}
             </span>
         </div>
 

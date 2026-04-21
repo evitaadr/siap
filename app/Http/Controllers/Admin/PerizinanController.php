@@ -54,7 +54,23 @@ class PerizinanController extends Controller
         $validatedData['user_id'] = auth()->id();
         $validatedData['status'] = 'pending';
 
-        Perizinan::create($validatedData);
+        // Simpan data perizinan
+        $perizinan = Perizinan::create($validatedData);
+
+        $user = auth()->user();
+
+        // dd($user->hasRole('admin'));
+
+        // Kepala divisi langsung ke HRD
+        VerifikasiPerizinan::create([
+            'perizinan_id' => $perizinan->id,
+            'status_admin' => 'disetujui',
+            'admin_verified_at' => now(),
+            'admin_id' => $user->id,
+            'status_superadmin' => 'pending',
+        ]);
+
+        // dd(VerifikasiPerizinan::where('perizinan_id', $perizinan->id)->first());
 
         Alert::success('Sukses', 'Data perizinan berhasil diajukan.');
         return redirect()->route('admin.daftarPerizinan');
@@ -62,14 +78,22 @@ class PerizinanController extends Controller
 
 
     public function daftarVerifikasiPerizinan()
-    {;
+    {
         $perizinanPending = Perizinan::whereHas('verifikasi', function ($q) {
             $q->whereNull('admin_verified_at');
+        })
+        ->whereHas('user.roles', function ($q) {
+            $q->where('nama', 'karyawan'); // ⬅️ ini kuncinya
         })
         ->orderBy('created_at', 'desc')
         ->paginate(10);
 
-        $perizinanRiwayat = Perizinan::whereIn('status', ['disetujui', 'ditolak'])->orderBy('created_at', 'desc')->paginate(10);
+        $perizinanRiwayat = Perizinan::whereIn('status', ['disetujui', 'ditolak'])
+        ->whereHas('user.roles', function ($q) {
+            $q->where('nama', 'karyawan'); // ⬅️ konsisten
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
 
         return view('layouts.admin.perizinan.verifikasi_perizinan', compact('perizinanPending', 'perizinanRiwayat'));
     }

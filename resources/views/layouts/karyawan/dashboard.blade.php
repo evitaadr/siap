@@ -58,37 +58,6 @@
             Kantor Pusat PT Sarana Media Cemerlang
         </p>
 
-        <!-- Tombol -->
-        {{-- <div class="flex justify-center gap-6">
-
-            <form action="{{ route('karyawan.absenMasuk') }}" method="POST">
-                @csrf
-
-                <input type="hidden" name="latitude" id="latitude">
-                <input type="hidden" name="longitude" id="longitude">
-
-                <button type="submit"
-                    class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    Presensi Masuk
-                </button>
-            </form>
-
-            <form action="{{ route('karyawan.absenPulang') }}" method="POST">
-                @csrf
-
-                <input type="hidden" name="latitude" id="latitude2">
-                <input type="hidden" name="longitude" id="longitude2">
-
-                <button type="submit"
-                    class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    Presensi Keluar
-                </button>
-            </form>
-
-        </div> --}}
-
         <div class="flex justify-center gap-6">
 
         <!-- PRESENSI MASUK -->
@@ -225,7 +194,6 @@ function ambilLokasi(latId, lngId) {
     });
 }
 
-
 // ===== HANDLE SUBMIT MASUK =====
 document.getElementById('formMasuk').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -252,7 +220,6 @@ document.getElementById('formMasuk').addEventListener('submit', function(e) {
             // Error sudah di-handle di dalam ambilLokasi()
         });
 });
-
 
 // ===== HANDLE SUBMIT KELUAR =====
 document.getElementById('formKeluar').addEventListener('submit', function(e) {

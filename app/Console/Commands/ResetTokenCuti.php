@@ -14,7 +14,7 @@ class ResetTokenCuti extends Command
     public function handle()
     {
         User::query()->update([
-            'token_cuti' => 12 // bisa kamu ubah sesuai kebijakan
+            'token_cuti' => 12 // bisa di ubah sesuai kebijakan
         ]);
 
         $this->info('Token cuti berhasil direset untuk semua user.');
