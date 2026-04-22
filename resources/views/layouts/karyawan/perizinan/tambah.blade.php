@@ -80,11 +80,18 @@
                                 <span class="text-gray-500 font-normal">atau seret dan lepas</span>
                             </p>
                             <p class="text-xs text-gray-400 mt-1">
-                                PNG, JPG, PDF up to 5MB
+                                PNG, JPG, PDF up to 2MB
                             </p>
                         </div>
                         <input type="file" name="bukti_file" id="bukti_file" class="hidden" />
                     </label>
+
+                    <!-- PREVIEW IMAGE -->
+                    <div id="previewContainer" class="mt-4 hidden">
+                        <p class="text-xs text-gray-400 mb-2">Preview:</p>
+                        <img id="imagePreview"
+                            class="rounded-xl border max-h-64 object-contain shadow-sm">
+                    </div>
                 </div>
 
                 <!-- Sisa Cuti -->
@@ -125,21 +132,52 @@
 
             const selectJenis = document.getElementById('jenis_perizinan');
             const uploadWrapper = document.getElementById('uploadWrapper');
-            const uploadInput = document.getElementById('upload_file');
+            const uploadInput = document.getElementById('bukti_file');
+            const previewContainer = document.getElementById('previewContainer');
+            const imagePreview = document.getElementById('imagePreview')
 
+            // Show upload hanya jika jenis perizinan adalah 'Sakit'
             selectJenis.addEventListener('change', function () {
 
-                if (this.value.toLowerCase() === 'sakit') {
-                    uploadWrapper.classList.remove('hidden');
-                    uploadInput.required = true;
-                } else {
-                    uploadWrapper.classList.add('hidden');
-                    uploadInput.required = false;
-                    uploadInput.value = '';
-                }
+                    if (this.value.toLowerCase() === 'sakit') {
+                        uploadWrapper.classList.remove('hidden');
+                        uploadInput.required = true;
+                    } else {
+                        uploadWrapper.classList.add('hidden');
+                        uploadInput.required = false;
+                        uploadInput.value = '';
+                        previewContainer.classList.add('hidden');
+                        imagePreview.src = '';
+                    }
 
-            });
+                });
 
+                // Preview Image
+                uploadInput.addEventListener('change', function () {
+
+                    const file = this.files[0];
+
+                    if (file) {
+
+                        if (file.type.startsWith('image/')) {
+
+                            const reader = new FileReader();
+
+                            reader.onload = function (e) {
+                                imagePreview.src = e.target.result;
+                                previewContainer.classList.remove('hidden');
+                            };
+
+                            reader.readAsDataURL(file);
+
+                        } else {
+                            previewContainer.classList.add('hidden');
+                            imagePreview.src = '';
+                        }
+
+                    }
+
+                });
         });
         </script>
     @endpush

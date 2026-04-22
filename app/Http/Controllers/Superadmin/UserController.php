@@ -11,13 +11,14 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class UserController extends Controller
 {
-
+    // Menampilkan daftar pengguna
     public function daftarPengguna()
     {
         $users = User::with('roles')->paginate(5);
         return view('layouts.superadmin.pengguna.data_pengguna', compact('users'));
     }
 
+    // Menampilkan form untuk menambahkan pengguna baru
     public function tambahPengguna()
     {
         $roles = Role::whereNotIn('nama', ['superadmin'])->get(); // Ambil semua role kecuali superadmin
@@ -26,6 +27,7 @@ class UserController extends Controller
 
     public function simpanPengguna(Request $request)
     {
+        // Validasi input dari form tambah pengguna
         $validatedData = $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
@@ -35,6 +37,7 @@ class UserController extends Controller
             'roles.*' => 'exists:roles,id',
         ]);
 
+        // Simpan data pengguna baru ke database dengan password default sebagai username + "123" dan status aktif secara otomatis
         $user = User::create([
             'nama_lengkap' => $validatedData['nama_lengkap'],
             'email' => $validatedData['email'],
@@ -54,6 +57,7 @@ class UserController extends Controller
 
     public function editPengguna($id)
     {
+        // Ambil data pengguna beserta peranannya berdasarkan ID
         $user = User::with('roles')->findOrFail($id);
         $roles = Role::whereNotIn('nama', ['superadmin'])->get(); // Ambil semua role kecuali superadmin
         return view('layouts.superadmin.pengguna.edit', compact('user', 'roles'));
@@ -61,6 +65,7 @@ class UserController extends Controller
 
     public function updatePengguna(Request $request, $id)
     {
+        // Validasi input dari form edit pengguna dengan pengecualian untuk email dan username yang sama dengan pengguna yang sedang diedit
         $validatedData = $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
@@ -71,6 +76,7 @@ class UserController extends Controller
             'roles.*' => 'exists:roles,id',
         ]);
 
+        // Update data pengguna di database
         $user = User::findOrFail($id);
         $user->update([
             'nama_lengkap' => $validatedData['nama_lengkap'],
@@ -80,6 +86,7 @@ class UserController extends Controller
             'status' => $validatedData['status'],
         ]);
 
+        // Update peran pengguna
         if ($request->filled('roles')) {
             $user->roles()->sync($request['roles']);
         } else {

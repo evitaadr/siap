@@ -34,12 +34,13 @@ class PresensiController extends Controller
         // $officeLng = 111.4545241;
         // $radius = 200;
 
+        // Ambil koordinat lokasi pengguna dari request
         $userLat = $request->latitude;
         $userLng = $request->longitude;
 
-        $distance = $this->distance($officeLat,$officeLng,$userLat,$userLng);
+        $distance = $this->distance($officeLat,$officeLng,$userLat,$userLng); // Hitung jarak antara lokasi pengguna dan kantor
 
-        // validasi lokasi
+        // Validasi lokasi pengguna
         if($distance > $radius){
 
             Alert::error('Gagal','Anda berada di luar area kantor');
@@ -61,12 +62,14 @@ class PresensiController extends Controller
             return back();
         }
 
+        // Tentukan status kehadiran berdasarkan waktu absen
         if ($now->lte($endAbsen)) {
             $status = 'hadir';
         } else {
             $status = 'terlambat';
         }
 
+        // Simpan data presensi masuk ke database
         $presensi = Presensi::firstOrCreate(
             ['user_id' => $user->id, 'tanggal' => $today],
             ['jam_masuk' => $now->format('H:i:s'), 'status' => $status, 'latitude' => $userLat, 'longitude' => $userLng]
@@ -78,6 +81,7 @@ class PresensiController extends Controller
 
     public function absenPulang()
     {
+        // Ambil data user yang sedang login
         $user = auth()->user();
         $today = Carbon::today();
         $now = Carbon::now();
@@ -85,6 +89,7 @@ class PresensiController extends Controller
         $jamPulang = Carbon::createFromTime(17,0,0); // Jam pulang kantor
         $batasPulang = Carbon::createFromTime(18,0,0); // Batas akhir absen pulang
 
+        // Cek apakah sudah melakukan presensi masuk hari ini
         $presensi = Presensi::where('user_id', $user->id)->where('tanggal', $today)->first();
 
         if (!$presensi || !$presensi->jam_masuk) {
@@ -114,10 +119,12 @@ class PresensiController extends Controller
         return back();
     }
 
+    // Fungsi untuk menghitung jarak antara dua titik koordinat menggunakan rumus Haversine
     function distance($lat1,$lon1,$lat2,$lon2)
     {
         $earthRadius = 6371000;
 
+        // Konversi derajat ke radian
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
 
@@ -127,9 +134,9 @@ class PresensiController extends Controller
             sin($dLon/2) *
             sin($dLon/2);
 
-        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a)); // Hitung jarak dalam meter
 
-        return $earthRadius * $c;
+        return $earthRadius * $c; // Kembalikan jarak dalam meter
     }
 
     public function riwayatPresensi()

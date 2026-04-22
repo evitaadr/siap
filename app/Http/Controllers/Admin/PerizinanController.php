@@ -10,39 +10,43 @@ use App\Models\VerifikasiPerizinan;
 
 class PerizinanController extends Controller
 {
+    // Menampilkan daftar perizinan yang diajukan oleh kepala divisi
     public function daftarPerizinan()
     {
+        // Ambil perizinan yang diajukan oleh kepala divisi yang sedang login
         $perizinan = Perizinan::with('verifikasi')->where('user_id', auth()->id())->orderBy('created_at', 'desc')->paginate(10);
         return view('layouts.admin.perizinan.daftar', compact('perizinan'));
     }
 
+    // Menampilkan form untuk mengajukan perizinan baru
     public function tambahPerizinan()
     {
-        $userTokenCuti = auth()->user()->token_cuti;
+        $userTokenCuti = auth()->user()->token_cuti; // Ambil token cuti dari user yang sedang login
 
         $jenisPerizinan = ['Cuti', 'Sakit', 'Izin', 'lainnya'];
-        return view('layouts.admin.perizinan.tambah', compact('userTokenCuti', 'jenisPerizinan'));
+        return view('layouts.admin.perizinan.tambah', compact('userTokenCuti', 'jenisPerizinan')); // Kirim data token cuti dan jenis perizinan ke view
     }
 
+    // Menyimpan data perizinan yang diajukan oleh kepala divisi
     public function simpanPerizinan(Request $request)
     {
-
+        // Validasi input dari form perizinan
         $validatedData = $request->validate([
             'jenis_perizinan' => 'required|in:Cuti,Sakit,Izin,lainnya',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'keterangan' => 'nullable|string',
-            'bukti_file' => 'nullable|file|mimes:jpg,png|max:3072',
+            'bukti_file' => 'nullable|file|mimes:jpg,png|max:2048',
         ]);
 
-
+        // Cek jika jenis perizinan adalah 'Cuti' dan token cuti tidak mencukupi
         if ($validatedData['jenis_perizinan'] === 'Cuti' && auth()->user()->token_cuti <= 0) {
             return back()->withErrors([
                 'jenis_perizinan' => 'Anda tidak memiliki token cuti yang cukup.'
             ]);
         }
 
-        // Handle upload file
+        // Handle upload file jika ada
         if ($request->hasFile('bukti_file')) {
             $file = $request->file('bukti_file');
             $filename = time().'_'.$file->getClientOriginalName();
@@ -51,15 +55,16 @@ class PerizinanController extends Controller
             $validatedData['bukti_file'] = $filename;
         }
 
+        // Tambahkan user_id dan status ke data yang akan disimpan
         $validatedData['user_id'] = auth()->id();
         $validatedData['status'] = 'pending';
 
-        // Simpan data perizinan
+        // Simpan data perizinan ke database
         $perizinan = Perizinan::create($validatedData);
 
-        $user = auth()->user();
+        $user = auth()->user(); // Ambil data user yang sedang login
 
-        // Kepala divisi langsung ke HRD
+        // Simpan data verifikasi perizinan dengan status admin disetujui
         VerifikasiPerizinan::create([
             'perizinan_id' => $perizinan->id,
             'status_admin' => 'disetujui',
@@ -72,11 +77,10 @@ class PerizinanController extends Controller
         return redirect()->route('admin.daftarPerizinan');
     }
 
-
-    // menerima data perizinan yang belum diverifikasi admin
+    // Menampilkan daftar perizinan yang diajukan oleh karyawan untuk diverifikasi oleh admin
     public function daftarVerifikasiPerizinan()
     {
-        $perizinanPending = Perizinan::whereHas('verifikasi', function ($q) {
+        $perizinanPending = Perizinan::whereHas('verifikasi', function ($q) { // Hanya ambil perizinan yang belum diverifikasi oleh admin
             $q->whereNull('admin_verified_at');
         })
         ->whereHas('user.roles', function ($q) {
@@ -85,7 +89,7 @@ class PerizinanController extends Controller
         ->orderBy('created_at', 'desc')
         ->paginate(10);
 
-        $perizinanRiwayat = Perizinan::whereIn('status', ['disetujui', 'ditolak'])
+        $perizinanRiwayat = Perizinan::whereIn('status', ['disetujui', 'ditolak']) // Hanya ambil perizinan yang sudah disetujui atau ditolak
         ->whereHas('user.roles', function ($q) {
             $q->where('nama', 'karyawan');
         })
@@ -96,17 +100,18 @@ class PerizinanController extends Controller
     }
 
 
+    // Menampilkan form untuk memverifikasi perizinan yang diajukan oleh karyawan
     public function updateVerifikasiPerizinan(Request $request, $id)
     {
         $verifikasi = VerifikasiPerizinan::where('perizinan_id', $id)->firstOrFail();
 
         $verifikasi->status_admin = $request->status;
-        $verifikasi->catatan_admin = $request->catatan; // Menyimpan catatan admin
+        $verifikasi->catatan_admin = $request->catatan;
         $verifikasi->admin_id = auth()->id(); // Menyimpan ID admin yang memverifikasi
         $verifikasi->admin_verified_at = now(); // Menyimpan waktu verifikasi
         $verifikasi->save();
 
-          // Update status di tabel perizinans
+        // Update status perizinan berdasarkan hasil verifikasi admin
         $perizinan = Perizinan::findOrFail($id);
 
         if ($request->status == 'ditolak') {
@@ -121,9 +126,10 @@ class PerizinanController extends Controller
         return redirect()->route('admin.daftarVerifikasiPerizinan');
     }
 
+    // Menampilkan detail perizinan berdasarkan ID untuk keperluan verifikasi
     public function getVerifikasiById($id)
     {
-        $perizinan = Perizinan::with('user')->findOrFail($id);
+        $perizinan = Perizinan::with('user')->findOrFail($id); // Ambil data perizinan beserta data user yang mengajukan perizinan
 
         return response()->json([ 'perizinan' => $perizinan, 'user' => $perizinan->user ]);
     }

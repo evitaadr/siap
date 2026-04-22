@@ -14,19 +14,17 @@ class PerizinanController extends Controller
 {
     public function verifikasiPerizinan()
     {
-        // Pending untuk superadmin
-        // admin sudah verifikasi tapi superadmin belum
+        // Perizinan yang menunggu verifikasi superadmin (sudah diverifikasi admin)
         $perizinanPending = Perizinan::with(['user','verifikasi'])
             ->whereHas('verifikasi', function ($p) {
                 $p->where('status_admin', 'disetujui') // Sudah diverifikasi admin
                 ->whereNull('superadmin_verified_at'); // Belum diverifikasi superadmin
             })
-            ->where('status', '!=', 'ditolak') // Hanya tampilkan yang tidak ditolak
+            ->where('status', '!=', 'ditolak') // Hanya ambil perizinan yang tidak ditolak
             ->orderBy('created_at','desc')
             ->paginate(10);
 
-
-        // Riwayat verifikasi superadmin
+        // Perizinan yang sudah diverifikasi superadmin (disetujui atau ditolak)
         $perizinanRiwayat = Perizinan::with(['user','verifikasi'])
             ->whereHas('verifikasi', function ($q) {
                 $q->whereNotNull('superadmin_verified_at');
@@ -34,10 +32,10 @@ class PerizinanController extends Controller
             ->orderBy('created_at','desc')
             ->paginate(10);
 
-        return view('layouts.superadmin.perizinan.verifikasi_perizinan',
-            compact('perizinanPending','perizinanRiwayat'));
+        return view('layouts.superadmin.perizinan.verifikasi_perizinan', compact('perizinanPending','perizinanRiwayat'));
     }
 
+    // Menampilkan form untuk memverifikasi perizinan yang diajukan oleh karyawan
     public function updateVerifikasiPerizinan(Request $request, $id)
     {
         $verifikasi = VerifikasiPerizinan::where('perizinan_id', $id)->firstOrFail();
@@ -62,7 +60,7 @@ class PerizinanController extends Controller
             $perizinan->status = 'disetujui';
             $perizinan->save();
 
-            // cek jenis perizinan, jika bukan sakit maka kurangi token cuti
+           // Jika jenis perizinan bukan 'Sakit', kurangi token cuti karyawan
             if (strtolower(trim($perizinan->jenis_perizinan)) != 'sakit') {
 
                 $user = \App\Models\User::find($perizinan->user_id);
@@ -73,7 +71,6 @@ class PerizinanController extends Controller
 
                 $jumlahHari = Carbon::parse($perizinan->tanggal_mulai)
                     ->diffInDays(Carbon::parse($perizinan->tanggal_selesai)) + 1;
-
                 if ($user->token_cuti >= $jumlahHari) {
                     $user->decrement('token_cuti', $jumlahHari);
                 } else {
@@ -93,6 +90,7 @@ class PerizinanController extends Controller
         return redirect()->route('superadmin.verifikasi_perizinan');
     }
 
+    // Mendapatkan data perizinan beserta informasi user berdasarkan ID perizinan
     public function getVerifikasiById($id)
     {
         $perizinan = Perizinan::with('user')->findOrFail($id);

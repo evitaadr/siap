@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Membuat tabel roles untuk menyimpan data peran pengguna
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->string('nama')->unique();

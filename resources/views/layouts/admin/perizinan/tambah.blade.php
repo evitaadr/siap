@@ -82,15 +82,11 @@
                                 <span class="text-gray-500 font-normal">atau seret dan lepas</span>
                             </p>
                             <p class="text-xs text-gray-400 mt-1">
-                                JPG / PNG maksimal 3MB
+                                PNG, JPG, PDF up to 2MB
                             </p>
                         </div>
 
-                        <input type="file"
-                            name="bukti_file"
-                            id="bukti_file"
-                            accept="image/*"
-                            class="hidden" />
+                        <input type="file" name="bukti_file" id="bukti_file" accept="image/*" class="hidden" />
                     </label>
 
                     <!-- PREVIEW IMAGE -->

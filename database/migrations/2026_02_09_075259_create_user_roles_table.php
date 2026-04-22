@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Membuat tabel user_roles untuk menyimpan hubungan antara pengguna dan peran yang dimiliki oleh pengguna
         Schema::create('user_roles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

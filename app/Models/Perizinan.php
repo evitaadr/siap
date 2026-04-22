@@ -25,6 +25,7 @@ class Perizinan extends Model
         return $this->belongsTo(User::class);
     }
 
+    // relasi perizinan memiliki satu verifikasi perizinan yang terkait dengan perizinan tersebut
     public function verifikasi()
     {
         return $this->hasOne(VerifikasiPerizinan::class,'perizinan_id');

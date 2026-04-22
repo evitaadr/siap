@@ -10,23 +10,28 @@ use App\Models\VerifikasiPerizinan;
 
 class PerizinanController extends Controller
 {
+    // Menampilkan daftar perizinan yang diajukan oleh karyawan
     public function daftarPerizinan()
     {
-        $perizinan = Perizinan::with('verifikasi')->where('user_id', auth()->id())->orderBy('created_at', 'desc')->paginate(10);
+        $perizinan = Perizinan::with('verifikasi')->where('user_id', auth()->id())->orderBy('created_at', 'desc')->paginate(10); // Ambil perizinan yang diajukan oleh karyawan yang sedang login
 
         return view('layouts.karyawan.perizinan.daftar', compact('perizinan'));
     }
 
+    // Menampilkan form untuk mengajukan perizinan baru
     public function tambahPerizinan()
     {
-        $userTokenCuti = auth()->user()->token_cuti;
+        $userTokenCuti = auth()->user()->token_cuti; // Ambil token cuti dari user yang sedang login
 
         $jenisPerizinan = ['Cuti', 'Sakit', 'Izin', 'lainnya'];
-        return view('layouts.karyawan.perizinan.tambah', compact('userTokenCuti', 'jenisPerizinan'));
+
+        return view('layouts.karyawan.perizinan.tambah', compact('userTokenCuti', 'jenisPerizinan')); // Kirim data token cuti dan jenis perizinan ke view
     }
 
+    // Menyimpan data perizinan yang diajukan oleh karyawan
     public function simpanPerizinan(Request $request)
     {
+        // Validasi input dari form perizinan
         $validatedData = $request->validate([
             'jenis_perizinan' => 'required|in:Cuti,Sakit,Izin,lainnya',
             'tanggal_mulai' => 'required|date',
@@ -35,13 +40,14 @@ class PerizinanController extends Controller
             'bukti_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:2048',
         ]);
 
+        // Cek jika jenis perizinan adalah 'Cuti' dan token cuti tidak mencukupi
         if ($validatedData['jenis_perizinan'] === 'Cuti' && auth()->user()->token_cuti <= 0) {
             return back()->withErrors([
                 'jenis_perizinan' => 'Token cuti Anda sudah habis.'
             ]);
         }
 
-        // Handle upload file
+        // Handle upload file jika ada
         if ($request->hasFile('bukti_file')) {
             $file = $request->file('bukti_file');
             $filename = time().'_'.$file->getClientOriginalName();
@@ -50,13 +56,13 @@ class PerizinanController extends Controller
             $validatedData['bukti_file'] = $filename;
         }
 
+        // Tambahkan user_id dan status ke data yang akan disimpan
         $validatedData['user_id'] = auth()->id();
         $validatedData['status'] = 'pending';
 
-        // Simpan data perizinan
         $perizinan = Perizinan::create($validatedData);
 
-        // Simpan data verifikasi perizinan
+        // Buat entri verifikasi perizinan dengan status pending untuk admin dan superadmin
         VerifikasiPerizinan::create([
             'perizinan_id' => $perizinan->id,
             'status_admin' => 'pending',

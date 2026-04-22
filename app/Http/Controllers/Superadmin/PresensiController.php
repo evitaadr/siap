@@ -34,12 +34,13 @@ class PresensiController extends Controller
         // $officeLng = 111.4545241;
         // $radius = 200;
 
+        // Ambil koordinat lokasi pengguna dari request
         $userLat = $request->latitude;
         $userLng = $request->longitude;
 
-        $distance = $this->distance($officeLat,$officeLng,$userLat,$userLng);
+        $distance = $this->distance($officeLat,$officeLng,$userLat,$userLng); // Hitung jarak antara lokasi pengguna dan kantor
 
-        // validasi lokasi
+        // validasi lokasi pengguna
         if($distance > $radius){
 
             Alert::error('Gagal','Anda berada di luar area kantor');
@@ -134,18 +135,18 @@ class PresensiController extends Controller
 
     public function riwayatPresensi()
     {
-        $data = Presensi::with('user')->get();
+        $data = Presensi::with('user')->get(); // Ambil semua data presensi beserta informasi user yang melakukan presensi
 
         foreach ($data as $item) {
 
-            // gabungkan tanggal + jam masuk
-            $jamMasuk = Carbon::parse($item->tanggal . ' ' . $item->jam_masuk);
+            $jamMasuk = Carbon::parse($item->tanggal . ' ' . $item->jam_masuk); // Gabungkan tanggal dan jam masuk untuk mendapatkan waktu lengkap presensi masuk
 
-            // batas hadir = 08:00
-            $batas = Carbon::parse($item->tanggal . ' 08:00:00');
+            $batas = Carbon::parse($item->tanggal . ' 08:00:00'); //
 
+            // Tentukan status kehadiran berdasarkan waktu absen
             if ($item->status == 'terlambat') {
 
+                // Hitung keterlambatan dalam menit
                 if ($jamMasuk->gt($batas)) {
                     $item->terlambat_menit = (int) $jamMasuk->diffInMinutes($batas);
                 } else {
@@ -156,6 +157,7 @@ class PresensiController extends Controller
 
             } elseif ($item->status == 'hadir') {
 
+                // Jika status adalah 'hadir', maka keterlambatan adalah 0 menit
                 $item->terlambat_menit = 0;
                 $item->status_label = 'Hadir';
 

@@ -18,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+    // Menambahkan direktif Blade untuk memeriksa peran pengguna dalam tampilan Blade
     public function boot(): void
     {
         Blade::if('hasRole', function ($role) {

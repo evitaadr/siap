@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('divisi', ['HRGA', 'FINANCE', 'CRO&LEGAL', 'MARKETING', 'TEKNISI', 'NOC', 'LOGISTIC&PROJECT']);
             $table->enum('status', ['aktif', 'resign'])->default('aktif');
-            $table->integer('token_cuti')->default(12); // Menambahkan kolom token_cuti dengan default 12
+            $table->integer('token_cuti')->default(12);
             $table->rememberToken();
             $table->timestamps();
         });
